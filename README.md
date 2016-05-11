@@ -1,4 +1,4 @@
-# Source code of my talk "Jascript Test Dummies" for MilanoJS on July 2015
+# Source code of my talk "Jascript Test Dummies" for FEVR on May 2016
 
 ## License
 
