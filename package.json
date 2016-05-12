@@ -24,9 +24,9 @@
     "presets": ["es2015", "react"]
   },
   "dependencies": {
-    "es5-shim": "^4.1.7",
     "es6-promise": "^2.3.0",
-    "react": "^0.13.3"
+    "react": "^15.0.2",
+    "react-dom": "^15.0.2"
   },
   "devDependencies": {
     "babel": "^6.5.2",
@@ -48,6 +48,7 @@
     "mocha": "^2.2.5",
     "parallelshell": "^2.0.0",
     "phantomjs-prebuilt": "^2.1.7",
+    "react-addons-test-utils": "^15.0.2",
     "rewire": "^2.3.4",
     "rewireify": "^0.2.1",
     "selenium-webdriver": "^2.46.1",

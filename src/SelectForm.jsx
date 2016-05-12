@@ -1,4 +1,3 @@
-require('es5-shim');
 let React = require('react');
 
 let SelectForm = React.createClass({
@@ -10,20 +9,21 @@ let SelectForm = React.createClass({
 
   handleSubmit(e) {
     e.preventDefault();
-    this.props.handleSubmit(this.refs.select.getDOMNode().value);
+    this.props.handleSubmit(this.refs.select.value);
   },
 
   render() {
-    let options = this.props.values.map((value, i) => {
+    let {values, disabled} = this.props;
+    let options = values.map((value, i) => {
       return <option key={i} value={value.name}>{value.name}</option>
     });
 
     return (
       <form className="repos-list" onSubmit={this.handleSubmit}>
-        <select ref="select" disabled={this.props.disabled}>
+        <select ref="select" disabled={disabled}>
           {options}
         </select>
-        <button type="submit" disabled={this.props.disabled}>Search</button>
+        <button type="submit" disabled={disabled}>Search</button>
       </form>
     );
   }

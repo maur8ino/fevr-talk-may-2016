@@ -1,8 +1,9 @@
 let expect = require('chai').expect;
 let sinon = require('sinon');
 
-let React = require('react/addons');
-let TestUtils = React.addons.TestUtils;
+let React = require('react');
+let ReactDOM = require('react-dom');
+let TestUtils = require('react-addons-test-utils');
 
 let SelectForm = require('../src/SelectForm.jsx');
 
@@ -19,8 +20,8 @@ describe('SelectForm component', () => {
     let options = TestUtils.scryRenderedDOMComponentsWithTag(selectForm, 'option');
 
     expect(options.length).to.equal(2);
-    expect(options[0].getDOMNode().textContent).to.equal('react-bem-mixin');
-    expect(options[1].getDOMNode().textContent).to.equal('react-timetable');
+    expect(options[0].textContent).to.equal('react-bem-mixin');
+    expect(options[1].textContent).to.equal('react-timetable');
   });
 
   it('should disable the form', () => {
@@ -28,8 +29,8 @@ describe('SelectForm component', () => {
     let select = TestUtils.findRenderedDOMComponentWithTag(selectForm, 'select');
     let button = TestUtils.findRenderedDOMComponentWithTag(selectForm, 'button');
 
-    expect(select.getDOMNode().disabled).to.be.ok;
-    expect(button.getDOMNode().disabled).to.be.ok;
+    expect(select.disabled).to.be.ok;
+    expect(button.disabled).to.be.ok;
   });
 
   it('should handle the form submit', () => {
@@ -41,7 +42,7 @@ describe('SelectForm component', () => {
 
     let selectForm = TestUtils.renderIntoDocument(<SelectForm values={values} handleSubmit={handleSubmit} />);
 
-    TestUtils.Simulate.submit(selectForm.getDOMNode());
+    TestUtils.Simulate.submit(ReactDOM.findDOMNode(selectForm));
 
     expect(handleSubmit.calledOnce).to.be.ok;
     expect(handleSubmit.calledWith('react-bem-mixin')).to.be.ok;

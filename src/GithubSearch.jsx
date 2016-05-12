@@ -1,4 +1,3 @@
-require('es5-shim');
 let React = require('react');
 
 let SearchForm = require('./SearchForm.jsx');
@@ -53,9 +52,7 @@ let GithubSearch = React.createClass({
   },
 
   render() {
-    let loading = this.state.loading;
-    let repoList = this.state.repoList;
-    let selectedRepo = this.state.selectedRepo;
+    let {loading, repoList, selectedRepo} = this.state;
 
     let searchForm = <SearchForm handleSubmit={this.getUserReposList} disabled={loading} />;
     let selectForm = repoList.length ?

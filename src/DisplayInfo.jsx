@@ -1,9 +1,8 @@
-require('es5-shim');
 let React = require('react');
 
 let DisplayInfo = React.createClass({
   render() {
-    let value = this.props.value;
+    let {value} = this.props;
 
     return (
       <ul className="repo-info">

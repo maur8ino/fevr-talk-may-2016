@@ -1,7 +1,7 @@
 let expect = require('chai').expect;
 
-let React = require('react/addons');
-let TestUtils = React.addons.TestUtils;
+let React = require('react');
+let TestUtils = require('react-addons-test-utils');
 
 let DisplayInfo = require('../src/DisplayInfo.jsx');
 
@@ -20,10 +20,10 @@ describe('DisplayInfo component', () => {
     let lis = TestUtils.scryRenderedDOMComponentsWithTag(displayInfo, 'li');
 
     expect(lis.length).to.equal(5);
-    expect(lis[0].getDOMNode().textContent).to.contain('quill');
-    expect(lis[1].getDOMNode().textContent).to.contain('cross browser');
-    expect(lis[2].getDOMNode().textContent).to.contain('quilljs.com');
-    expect(lis[3].getDOMNode().textContent).to.contain('CoffeeScript');
-    expect(lis[4].getDOMNode().textContent).to.contain('5280');
+    expect(lis[0].textContent).to.contain('quill');
+    expect(lis[1].textContent).to.contain('cross browser');
+    expect(lis[2].textContent).to.contain('quilljs.com');
+    expect(lis[3].textContent).to.contain('CoffeeScript');
+    expect(lis[4].textContent).to.contain('5280');
   });
 });

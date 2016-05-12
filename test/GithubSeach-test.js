@@ -1,8 +1,8 @@
 let expect = require('chai').expect;
 let sinon = require('sinon');
 
-let React = require('react/addons');
-let TestUtils = React.addons.TestUtils;
+let React = require('react');
+let TestUtils = require('react-addons-test-utils');
 
 let GithubSearch = require('../src/GithubSearch.jsx');
 
