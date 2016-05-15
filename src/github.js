@@ -1,25 +1,25 @@
-require('whatwg-fetch');
-let Promise = require('es6-promise').Promise;
+import 'whatwg-fetch';
+import {Promise} from 'es6-promise';
 
 const githubBaseURL = 'https://api.github.com';
 
-let getUserReposListURL = (username) => {
+export function getUserReposListURL(username) {
   if (!username) {
     throw new Error('Username is undefined, null or an empty string');
   }
   return `${githubBaseURL}/users/${encodeURIComponent(username)}/repos`;
 };
 
-let getUserRepoURL = (username, reponame) => {
+export function getUserRepoURL(username, reponame) {
   if (!username || !reponame) {
     throw new Error('Username or repository name is undefined, null or an empty string');
   }
   return `${githubBaseURL}/repos/${encodeURIComponent(username)}/${encodeURIComponent(reponame)}`;
 };
 
-let cache = {};
+const cache = {};
 
-let get = (url) => {
+const get = (url) => {
   let options = {};
 
   if (cache[url] && cache[url].ETag) {
@@ -47,7 +47,7 @@ let get = (url) => {
   });
 };
 
-let getUserReposList = (username) => {
+export function getUserReposList(username) {
   try {
     return get(getUserReposListURL(username));
   }
@@ -56,18 +56,11 @@ let getUserReposList = (username) => {
   }
 };
 
-let getUserRepo = (username, reponame) => {
+export function getUserRepo(username, reponame) {
   try {
     return get(getUserRepoURL(username, reponame));
   }
   catch(error) {
     return Promise.reject(error);
   }
-};
-
-module.exports = {
-  getUserReposListURL: getUserReposListURL,
-  getUserRepoURL: getUserRepoURL,
-  getUserReposList: getUserReposList,
-  getUserRepo: getUserRepo
 };

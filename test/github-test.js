@@ -1,7 +1,7 @@
 import test from 'ava';
 import fetchMock from 'fetch-mock';
 
-import github from '../src/github';
+import * as github from '../src/github';
 
 test.afterEach(() => {
   fetchMock.restore();

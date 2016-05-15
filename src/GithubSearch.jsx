@@ -1,12 +1,12 @@
-let React = require('react');
+import React from 'react';
 
-let SearchForm = require('./SearchForm.jsx');
-let SelectForm = require('./SelectForm.jsx');
-let DisplayInfo = require('./DisplayInfo.jsx');
+import SearchForm from './SearchForm.jsx';
+import SelectForm from './SelectForm.jsx';
+import DisplayInfo from './DisplayInfo.jsx';
 
-let github = require('./github');
+import * as github from './github';
 
-let GithubSearch = React.createClass({
+const GithubSearch = React.createClass({
   getInitialState() {
     return {
       loading: false,
@@ -72,4 +72,4 @@ let GithubSearch = React.createClass({
   }
 });
 
-module.exports = GithubSearch
+export default GithubSearch;

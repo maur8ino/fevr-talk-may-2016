@@ -1,6 +1,6 @@
-let React = require('react');
-let ReactDOM = require('react-dom');
-let GithubSearch = require('./GithubSearch.jsx');
+import React from 'react';
+import ReactDOM from 'react-dom';
+import GithubSearch from './GithubSearch.jsx';
 
 window.React = React
 

@@ -1,6 +1,6 @@
-let React = require('react');
+import React from 'react';
 
-let SelectForm = React.createClass({
+const SelectForm = React.createClass({
   getDefaultProps() {
     return {
       values: []
@@ -29,4 +29,4 @@ let SelectForm = React.createClass({
   }
 });
 
-module.exports = SelectForm
+export default SelectForm;

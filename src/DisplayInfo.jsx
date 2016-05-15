@@ -1,8 +1,9 @@
-let React = require('react');
+import React from 'react';
 
-let DisplayInfo = React.createClass({
+const DisplayInfo = React.createClass({
+
   render() {
-    let {value} = this.props;
+    var {value} = this.props;
 
     return (
       <ul className="repo-info">
@@ -16,4 +17,4 @@ let DisplayInfo = React.createClass({
   }
 });
 
-module.exports = DisplayInfo
+export default DisplayInfo;

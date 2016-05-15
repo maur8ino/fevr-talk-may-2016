@@ -1,6 +1,6 @@
-let React = require('react');
+import React from 'react';
 
-let SearchForm = React.createClass({
+const SearchForm = React.createClass({
   handleSubmit(e) {
     e.preventDefault();
     this.props.handleSubmit(this.refs.input.value);
@@ -17,4 +17,4 @@ let SearchForm = React.createClass({
   }
 });
 
-module.exports = SearchForm
+export default SearchForm;
