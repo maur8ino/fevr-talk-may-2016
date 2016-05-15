@@ -26,7 +26,8 @@
   "dependencies": {
     "es6-promise": "^2.3.0",
     "react": "^15.0.2",
-    "react-dom": "^15.0.2"
+    "react-dom": "^15.0.2",
+    "whatwg-fetch": "^1.0.0"
   },
   "devDependencies": {
     "babel": "^6.5.2",
@@ -38,6 +39,7 @@
     "chai": "^3.0.0",
     "coffee-script": "^1.9.3",
     "cucumber": "^0.5.2",
+    "fetch-mock": "^4.5.0",
     "http-server": "^0.9.0",
     "karma": "^0.13.22",
     "karma-browserify": "^5.0.5",

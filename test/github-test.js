@@ -1,18 +1,10 @@
 let expect = require('chai').expect;
-let sinon = require('sinon');
+let fetchMock = require('fetch-mock');
 
 let github = require('../src/github');
 
 describe('github module', () => {
-  let server;
-
-  before(() => {
-    server = sinon.fakeServer.create();
-  });
-
-  after(() => {
-    server.restore();
-  });
+  afterEach(fetchMock.restore);
 
   it('should generate the correct user\'s list of repositories endpoint url using encodeURIComponent', () => {
     expect(github.getUserReposListURL('maur8ino')).to.equal('https://api.github.com/users/maur8ino/repos');
@@ -53,11 +45,9 @@ describe('github module', () => {
   });
 
   it('should make an ajax request for user\'s repositories list and resolve it', (done) => {
-    server.autoRespond = true;
-    server.respondWith('GET', 'https://api.github.com/users/maur8ino/repos', [
-      200,
-      { 'Content-Type': 'application/json' },
-      '[{ "id": 35957173, "name": "angular-post-message" }, { "id": 37024234, "name": "react-bem-mixin" }]'
+    fetchMock.mock('https://api.github.com/users/maur8ino/repos', 'GET', [
+      { "id": 35957173, "name": "angular-post-message" },
+      { "id": 37024234, "name": "react-bem-mixin" }
     ]);
 
     github.getUserReposList('maur8ino').then((response) => {
@@ -76,22 +66,19 @@ describe('github module', () => {
   });
 
   it('should make an ajax request for user\'s repositories list and resolve it using cache', (done) => {
+    fetchMock.mock('https://api.github.com/users/maur8ino/repos', [
+      { id: 35957173, name: 'angular-post-message'},
+      { id: 37024234, name: 'react-bem-mixin' }
+    ]).mock('https://api.github.com/users/maur8ino/repos', {
+      status: 304,
+      headers: { 'Content-Type': 'application/json', 'ETag': '12345678abcd' },
+      body: ''
+    });
+
     // First request
-    server.respondWith('GET', 'https://api.github.com/users/maur8ino/repos', [
-      200,
-      { 'Content-Type': 'application/json', 'ETag': '12345678abcd' },
-      '[{ "id": 35957173, "name": "angular-post-message" }, { "id": 37024234, "name": "react-bem-mixin" }]'
-    ]);
     github.getUserReposList('maur8ino');
-    server.respond();
 
     // Second request same url
-    server.respondWith('GET', 'https://api.github.com/users/maur8ino/repos', [
-      304,
-      { 'Content-Type': 'application/json', 'ETag': '12345678abcd' },
-      ''
-    ]);
-
     github.getUserReposList('maur8ino').then((response) => {
       expect(response).to.deep.equal(
         [{
@@ -105,16 +92,10 @@ describe('github module', () => {
 
       done();
     });
-    server.respond();
   });
 
   it('should make an ajax request for user\'s repositories list and reject it', (done) => {
-    server.autoRespond = true;
-    server.respondWith('GET', 'https://api.github.com/users/maur8ino/repos', [
-      500,
-      { 'Content-Type': 'text/html' },
-      'KO'
-    ]);
+    fetchMock.mock('https://api.github.com/users/maur8ino/repos', 500);
 
     github.getUserReposList('maur8ino').catch(() => {
       done();
@@ -128,14 +109,13 @@ describe('github module', () => {
   });
 
   it('should make an ajax request for specific user\'s repository and resolve it', (done) => {
-    server.autoRespond = true;
-    server.respondWith('GET', 'https://api.github.com/repos/maur8ino/react-bem-mixin', [
-      200,
-      { 'Content-Type': 'application/json' },
-      '{ "id": 37024234, "name": "react-bem-mixin", "full_name": "maur8ino/react-bem-mixin", ' +
-      '"html_url": "https://github.com/maur8ino/react-bem-mixin", ' +
-      '"description": "A React.js mixin for generating BEM class names" }'
-    ]);
+    fetchMock.mock('https://api.github.com/repos/maur8ino/react-bem-mixin', {
+      id: 37024234,
+      name: 'react-bem-mixin',
+      full_name: 'maur8ino/react-bem-mixin',
+      html_url: 'https://github.com/maur8ino/react-bem-mixin',
+      description: 'A React.js mixin for generating BEM class names'
+    });
 
     github.getUserRepo('maur8ino', 'react-bem-mixin').then((response) => {
       expect(response).to.deep.equal({
@@ -151,23 +131,22 @@ describe('github module', () => {
   });
 
   it('should make an ajax request for specific user\'s repository and resolve it using cache', (done) => {
+    fetchMock.mock('https://api.github.com/repos/maur8ino/react-bem-mixin', {
+      id: 37024234,
+      name: 'react-bem-mixin',
+      full_name: 'maur8ino/react-bem-mixin',
+      html_url: 'https://github.com/maur8ino/react-bem-mixin',
+      description: 'A React.js mixin for generating BEM class names'
+    }).mock('https://api.github.com/repos/maur8ino/react-bem-mixin', {
+      status: 304,
+      headers: { 'Content-Type': 'application/json', 'ETag': '12345678abcd' },
+      body: ''
+    });
+
     // First request
-    server.respondWith('GET', 'https://api.github.com/repos/maur8ino/react-bem-mixin', [
-      200,
-      { 'Content-Type': 'application/json', 'ETag': '12345678abcd' },
-      '{ "id": 37024234, "name": "react-bem-mixin", "full_name": "maur8ino/react-bem-mixin", ' +
-      '"html_url": "https://github.com/maur8ino/react-bem-mixin", ' +
-      '"description": "A React.js mixin for generating BEM class names" }'
-    ]);
     github.getUserRepo('maur8ino', 'react-bem-mixin');
-    server.respond();
 
     // Second request same url
-    server.respondWith('GET', 'https://api.github.com/repos/maur8ino/react-bem-mixin', [
-      304,
-      { 'Content-Type': 'application/json', 'ETag': '12345678abcd' },
-      ''
-    ]);
     github.getUserRepo('maur8ino', 'react-bem-mixin').then((response) => {
       expect(response).to.deep.equal({
         id: 37024234,
@@ -179,16 +158,10 @@ describe('github module', () => {
 
       done();
     });
-    server.respond();
   });
 
   it('should make an ajax request for specific user\'s repository and reject it', (done) => {
-    server.autoRespond = true;
-    server.respondWith('GET', 'https://api.github.com/repos/maur8ino/react-bem-mixin', [
-      500,
-      { 'Content-Type': 'text/html' },
-      'KO'
-    ]);
+    fetchMock.mock('https://api.github.com/repos/maur8ino/react-bem-mixin', 500)
 
     github.getUserRepo('maur8ino', 'react-bem-mixin').catch(() => {
       done();

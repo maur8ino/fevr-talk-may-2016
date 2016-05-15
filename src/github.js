@@ -1,3 +1,4 @@
+require('whatwg-fetch');
 let Promise = require('es6-promise').Promise;
 
 const githubBaseURL = 'https://api.github.com';
@@ -19,47 +20,36 @@ let getUserRepoURL = (username, reponame) => {
 let cache = {};
 
 let get = (url) => {
-  return new Promise((resolve, reject) => {
-    let req = new XMLHttpRequest();
+  let options = {};
 
-    req.open('GET', url);
+  if (cache[url] && cache[url].ETag) {
+    options.headers = { 'If-None-Match': cache[url].ETag };
+  }
 
-    if (cache[url] && cache[url].ETag) {
-      req.setRequestHeader('If-None-Match', cache[url].ETag);
-    }
-
-    req.onload = () => {
-      if (req.status === 200) {
-        if (req.getResponseHeader('ETag')) {
-          cache[url] = {
-            ETag: req.getResponseHeader('ETag'),
-            responseText: req.responseText
-          };
-        }
-
-        resolve(req.responseText);
-      } else if (req.status === 304) {
-        if (cache[url].responseText) {
-          resolve(cache[url].responseText);
-        } else {
-          reject(Error(req.responseText));
-        }
-      } else {
-        reject(Error(req.responseText));
+  return fetch(url, options).then((response) => {
+    if (response.status === 200) {
+      if (response.headers.get('ETag')) {
+        cache[url] = { ETag: response.headers.get('ETag') };
       }
-    };
-
-    req.onerror = () => {
-      reject(Error("Network Error"));
-    };
-
-    req.send();
+      return response.json();
+    } else if (response.status === 304) {
+      if (cache[url].json) {
+        return Promise.resolve(cache[url].json);
+      }
+    } else {
+      return Promise.reject(Error('Error', response));
+    }
+  }).then((json) => {
+    if (cache[url]) {
+      cache[url].json = json;
+    }
+    return Promise.resolve(json);
   });
 };
 
 let getUserReposList = (username) => {
   try {
-    return get(getUserReposListURL(username)).then(JSON.parse);
+    return get(getUserReposListURL(username));
   }
   catch(error) {
     return Promise.reject(error);
@@ -68,7 +58,7 @@ let getUserReposList = (username) => {
 
 let getUserRepo = (username, reponame) => {
   try {
-    return get(getUserRepoURL(username, reponame)).then(JSON.parse);
+    return get(getUserRepoURL(username, reponame));
   }
   catch(error) {
     return Promise.reject(error);
