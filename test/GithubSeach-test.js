@@ -1,90 +1,80 @@
-let expect = require('chai').expect;
-let sinon = require('sinon');
+import test from 'ava';
+import sinon from 'sinon';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import {renderIntoDocument,
+        findRenderedComponentWithType,
+        scryRenderedDOMComponentsWithTag} from 'react-addons-test-utils';
 
-let React = require('react');
-let TestUtils = require('react-addons-test-utils');
+import GithubSearch from '../src/GithubSearch.jsx';
+import SearchForm from '../src/SearchForm.jsx';
+import SelectForm from '../src/SelectForm.jsx';
 
-let GithubSearch = require('../src/GithubSearch.jsx');
+const noop = () => {};
 
-describe('GithubSearch component', () => {
-  let mockSearchForm, mockSelectForm, mockGithub, GithubSearchSUT;
+test.beforeEach(t => {
+  t.context.mockGithub = {};
 
-  beforeEach(() => {
-    mockSearchForm = React.createClass({
-      render() { return <div/>; }
-    });
-    mockSelectForm = React.createClass({
-      render() { return <div/>; }
-    });
-    mockGithub = {};
+  GithubSearch.__Rewire__('github', t.context.mockGithub);
+});
 
-    GithubSearch.__set__('SearchForm', mockSearchForm);
-    GithubSearch.__set__('SelectForm', mockSelectForm);
-    GithubSearch.__set__('github', mockGithub);
+test.afterEach(() => {
+  GithubSearch.__ResetDependency__('github');
+});
 
-    GithubSearchSUT = TestUtils.renderIntoDocument( <GithubSearch /> );
+test('should call the github getUserReposList', t => {
+  const response = [
+    { id: 35957173, name: 'angular-post-message' },
+    { id: 37024234, name: 'react-bem-mixin' }
+  ];
+  const promise = Promise.resolve(response);
+
+  t.context.mockGithub.getUserReposList = sinon.stub().withArgs('maur8ino').returns(promise);
+
+  const GithubSearchSUT = renderIntoDocument( <GithubSearch /> );
+
+  // Triggers getUserReposList method in sut component
+  findRenderedComponentWithType(GithubSearchSUT, SearchForm)
+    .props.handleSubmit('maur8ino');
+
+  t.is(GithubSearchSUT.state.selectedUser, 'maur8ino');
+  t.true(GithubSearchSUT.state.loading);
+
+  return promise.then(noop).catch(noop).then(() => {
+    t.is(GithubSearchSUT.state.repoList, response);
+    t.false(GithubSearchSUT.state.loading);
   });
+});
 
-  it('should call the github getUserReposList', (done) => {
-    let response = [{
-      id: 35957173,
-      name: 'angular-post-message'
-    }, {
+test('should call the github getUserRepo', t => {
+  const response = {
+    id: 37024234,
+    name: 'react-bem-mixin',
+    full_name: 'maur8ino/react-bem-mixin',
+    html_url: 'https://github.com/maur8ino/react-bem-mixin',
+    description: 'A React.js mixin for generating BEM class names'
+  };
+  const promise = Promise.resolve(response);
+
+  t.context.mockGithub.getUserRepo = sinon.stub().withArgs('maur8ino', 'react-bem-mixin').returns(promise);
+
+  const GithubSearchSUT = renderIntoDocument( <GithubSearch /> );
+  GithubSearchSUT.setState({
+    selectedUser: 'maur8ino',
+    repoList: [{
       id: 37024234,
       name: 'react-bem-mixin'
-    }];
-    let promise = new Promise((resolve) => {
-      resolve(response);
-    });
-
-    mockGithub.getUserReposList = sinon.stub().withArgs('maur8ino').returns(promise);
-
-    // Triggers getUserReposList method in sut component
-    TestUtils.findRenderedComponentWithType(GithubSearchSUT, mockSearchForm)
-             .props.handleSubmit('maur8ino');
-
-    expect(GithubSearchSUT.state.selectedUser).to.equal('maur8ino');
-    expect(GithubSearchSUT.state.loading).to.be.true;
-
-    promise.then(() => {}).catch(() => {}).then(() => {
-      expect(GithubSearchSUT.state.repoList).to.equal(response);
-      expect(GithubSearchSUT.state.loading).to.be.false;
-      done();
-    });
+    }]
   });
 
-  it('should call the github getUserRepo', (done) => {
-    let response = {
-      id: 37024234,
-      name: 'react-bem-mixin',
-      full_name: 'maur8ino/react-bem-mixin',
-      html_url: 'https://github.com/maur8ino/react-bem-mixin',
-      description: 'A React.js mixin for generating BEM class names'
-    };
-    let promise = new Promise((resolve) => {
-      resolve(response);
-    });
+  // Triggers getUserRepo method in sut component
+  findRenderedComponentWithType(GithubSearchSUT, SelectForm)
+    .props.handleSubmit('maur8ino', 'react-bem-mixin');
 
-    mockGithub.getUserRepo = sinon.stub().withArgs('maur8ino', 'react-bem-mixin').returns(promise);
+  t.true(GithubSearchSUT.state.loading);
 
-    GithubSearchSUT.setState({
-      selectedUser: 'maur8ino',
-      repoList: [{
-        id: 37024234,
-        name: 'react-bem-mixin'
-      }]
-    });
-
-    // Triggers getUserRepo method in sut component
-    TestUtils.findRenderedComponentWithType(GithubSearchSUT, mockSelectForm)
-             .props.handleSubmit('maur8ino', 'react-bem-mixin');
-
-    expect(GithubSearchSUT.state.loading).to.be.true;
-
-    promise.then(() => {}).catch(() => {}).then(() => {
-      expect(GithubSearchSUT.state.selectedRepo).to.equal(response);
-      expect(GithubSearchSUT.state.loading).to.be.false;
-      done();
-    });
+  return promise.then(noop).catch(noop).then(() => {
+    t.is(GithubSearchSUT.state.selectedRepo, response);
+    t.false(GithubSearchSUT.state.loading);
   });
 });

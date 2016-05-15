@@ -1,29 +1,27 @@
-let expect = require('chai').expect;
+import test from 'ava';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import {renderIntoDocument,
+        scryRenderedDOMComponentsWithTag} from 'react-addons-test-utils';
 
-let React = require('react');
-let TestUtils = require('react-addons-test-utils');
+import DisplayInfo from '../src/DisplayInfo.jsx';
 
-let DisplayInfo = require('../src/DisplayInfo.jsx');
+test('should display the correct info', t => {
+  const value = {
+    name: 'quill',
+    description: 'A cross browser rich text editor with an API',
+    homepage: 'http://quilljs.com',
+    language: 'CoffeeScript',
+    stargazers_count: 5280,
+  };
 
-describe('DisplayInfo component', () => {
-  it('should display the correct info', () => {
-    let value = {
-      name: 'quill',
-      description: 'A cross browser rich text editor with an API',
-      homepage: 'http://quilljs.com',
-      language: 'CoffeeScript',
-      stargazers_count: 5280,
-    };
+  const displayInfo = renderIntoDocument(<DisplayInfo value={value} />);
+  const lis = scryRenderedDOMComponentsWithTag(displayInfo, 'li');
 
-    let displayInfo = TestUtils.renderIntoDocument(<DisplayInfo value={value} />);
-
-    let lis = TestUtils.scryRenderedDOMComponentsWithTag(displayInfo, 'li');
-
-    expect(lis.length).to.equal(5);
-    expect(lis[0].textContent).to.contain('quill');
-    expect(lis[1].textContent).to.contain('cross browser');
-    expect(lis[2].textContent).to.contain('quilljs.com');
-    expect(lis[3].textContent).to.contain('CoffeeScript');
-    expect(lis[4].textContent).to.contain('5280');
-  });
+  t.is(lis.length, 5);
+  t.regex(lis[0].textContent, /quill/);
+  t.regex(lis[1].textContent, /cross browser/);
+  t.regex(lis[2].textContent, /quilljs\.com/);
+  t.regex(lis[3].textContent, /CoffeeScript/);
+  t.regex(lis[4].textContent, /5280/);
 });

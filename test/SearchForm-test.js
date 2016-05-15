@@ -1,37 +1,36 @@
-let expect = require('chai').expect;
-let sinon = require('sinon');
+import test from 'ava'
+import sinon from 'sinon';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import {Simulate,
+        renderIntoDocument,
+        findRenderedDOMComponentWithTag} from 'react-addons-test-utils';
 
-let React = require('react');
-let ReactDOM = require('react-dom');
-let TestUtils = require('react-addons-test-utils');
+import SearchForm from '../src/SearchForm.jsx';
 
-let SearchForm = require('../src/SearchForm.jsx');
+test('should be initialized with a default value', t => {
+  const searchForm = renderIntoDocument(<SearchForm value="maur8ino" />);
+  const input = findRenderedDOMComponentWithTag(searchForm, 'input');
 
-describe('SearchForm component', () => {
-  it('should be initialized with a default value', () => {
-    let searchForm = TestUtils.renderIntoDocument(<SearchForm value="maur8ino" />);
-    let input = TestUtils.findRenderedDOMComponentWithTag(searchForm, 'input');
+  t.is(input.value, 'maur8ino');
+});
 
-    expect(input.value).to.equal('maur8ino');
-  });
+test('should disable the form', t => {
+  const searchForm = renderIntoDocument(<SearchForm disabled={true} />);
+  const input = findRenderedDOMComponentWithTag(searchForm, 'input');
+  const button = findRenderedDOMComponentWithTag(searchForm, 'button');
 
-  it('should disable the form', () => {
-    let searchForm = TestUtils.renderIntoDocument(<SearchForm disabled={true} />);
-    let input = TestUtils.findRenderedDOMComponentWithTag(searchForm, 'input');
-    let button = TestUtils.findRenderedDOMComponentWithTag(searchForm, 'button');
+  t.true(input.disabled);
+  t.true(button.disabled);
+});
 
-    expect(input.disabled).to.be.ok;
-    expect(button.disabled).to.be.ok;
-  });
+test('should handle the form submit', t => {
+  const handleSubmit = sinon.spy();
 
-  it('should handle the form submit', () => {
-    let handleSubmit = sinon.spy();
+  const searchForm = renderIntoDocument(<SearchForm handleSubmit={handleSubmit} value="maur8ino" />);
 
-    let searchForm = TestUtils.renderIntoDocument(<SearchForm handleSubmit={handleSubmit} value="maur8ino" />);
+  Simulate.submit(ReactDOM.findDOMNode(searchForm));
 
-    TestUtils.Simulate.submit(ReactDOM.findDOMNode(searchForm));
-
-    expect(handleSubmit.calledOnce).to.be.ok;
-    expect(handleSubmit.calledWith('maur8ino')).to.be.ok;
-  });
+  t.true(handleSubmit.calledOnce);
+  t.true(handleSubmit.calledWith('maur8ino'));
 });

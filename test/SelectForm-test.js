@@ -1,50 +1,45 @@
-let expect = require('chai').expect;
-let sinon = require('sinon');
+import test from 'ava'
+import sinon from 'sinon';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import {Simulate,
+        renderIntoDocument,
+        findRenderedDOMComponentWithTag,
+        scryRenderedDOMComponentsWithTag} from 'react-addons-test-utils';
 
-let React = require('react');
-let ReactDOM = require('react-dom');
-let TestUtils = require('react-addons-test-utils');
+import SelectForm from '../src/SelectForm.jsx';
 
-let SelectForm = require('../src/SelectForm.jsx');
+test('should populate the select', t => {
+  const values = [
+    { id: 37024234, name: 'react-bem-mixin' },
+    { id: 32397723, name: 'react-timetable' }
+  ];
+  const selectForm = renderIntoDocument(<SelectForm values={values} />);
+  const options = scryRenderedDOMComponentsWithTag(selectForm, 'option');
 
-describe('SelectForm component', () => {
-  it('should populate the select', () => {
-    let values = [{
-      id: 37024234,
-      name: 'react-bem-mixin'
-    }, {
-      id: 32397723,
-      name: 'react-timetable'
-    }];
-    let selectForm = TestUtils.renderIntoDocument(<SelectForm values={values} />);
-    let options = TestUtils.scryRenderedDOMComponentsWithTag(selectForm, 'option');
+  t.is(options.length, 2);
+  t.is(options[0].textContent, 'react-bem-mixin');
+  t.is(options[1].textContent, 'react-timetable');
+});
 
-    expect(options.length).to.equal(2);
-    expect(options[0].textContent).to.equal('react-bem-mixin');
-    expect(options[1].textContent).to.equal('react-timetable');
-  });
+test('should disable the form', t => {
+  const selectForm = renderIntoDocument(<SelectForm disabled={true} />);
+  const select = findRenderedDOMComponentWithTag(selectForm, 'select');
+  const button = findRenderedDOMComponentWithTag(selectForm, 'button');
 
-  it('should disable the form', () => {
-    let selectForm = TestUtils.renderIntoDocument(<SelectForm disabled={true} />);
-    let select = TestUtils.findRenderedDOMComponentWithTag(selectForm, 'select');
-    let button = TestUtils.findRenderedDOMComponentWithTag(selectForm, 'button');
+  t.true(select.disabled);
+  t.true(button.disabled);
+});
 
-    expect(select.disabled).to.be.ok;
-    expect(button.disabled).to.be.ok;
-  });
+test('should handle the form submit', t => {
+  const values = [
+    { id: 37024234, name: 'react-bem-mixin' }
+  ];
+  const handleSubmit = sinon.spy();
+  const selectForm = renderIntoDocument(<SelectForm values={values} handleSubmit={handleSubmit} />);
 
-  it('should handle the form submit', () => {
-    let values = [{
-      id: 37024234,
-      name: 'react-bem-mixin'
-    }];
-    let handleSubmit = sinon.spy();
+  Simulate.submit(ReactDOM.findDOMNode(selectForm));
 
-    let selectForm = TestUtils.renderIntoDocument(<SelectForm values={values} handleSubmit={handleSubmit} />);
-
-    TestUtils.Simulate.submit(ReactDOM.findDOMNode(selectForm));
-
-    expect(handleSubmit.calledOnce).to.be.ok;
-    expect(handleSubmit.calledWith('react-bem-mixin')).to.be.ok;
-  });
+  t.true(handleSubmit.calledOnce);
+  t.true(handleSubmit.calledWith('react-bem-mixin'));
 });
